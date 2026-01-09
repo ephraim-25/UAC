@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Outfit } from "next/font/google";
+import { CartProvider } from "@/context/CartContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,8 +31,6 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
-
-import { CartProvider } from "@/context/CartContext";
 
 export default function RootLayout({
   children,

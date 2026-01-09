@@ -8,6 +8,20 @@ import { useCart } from '@/context/CartContext';
 
 const Navbar = () => {
     const { cart, totalItems, totalPrice } = useCart();
+    const [user, setUser] = React.useState<any>(null);
+
+    React.useEffect(() => {
+        const savedUser = localStorage.getItem('uac_user');
+        if (savedUser) {
+            setUser(JSON.parse(savedUser));
+        }
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem('uac_token');
+        localStorage.removeItem('uac_user');
+        window.location.reload();
+    };
 
     return (
         <div className="navbar bg-white h-20 fixed top-0 z-[100] px-4 md:px-8 border-b border-primary/10 transition-all duration-300">
@@ -108,18 +122,36 @@ const Navbar = () => {
 
                     <div className="dropdown dropdown-end">
                         <label tabIndex={0} className="btn btn-primary btn-circle btn-sm md:btn-md ml-1 shadow-lg hover:shadow-primary/20 transition-all border-none">
-                            <User size={20} className="text-white" />
+                            {user ? (
+                                <span className="text-white font-black text-xs">{user.fullName?.[0]}</span>
+                            ) : (
+                                <User size={20} className="text-white" />
+                            )}
                         </label>
                         <ul tabIndex={0} className="menu menu-sm dropdown-content mt-4 z-[1] p-2 shadow-2xl bg-white border border-primary/10 rounded-2xl w-56 font-bold text-neutral/70">
                             <div className="px-4 py-3 border-b border-neutral/5 mb-2">
-                                <p className="text-[10px] uppercase tracking-widest opacity-40 mb-1">Bienvenue</p>
-                                <p className="text-sm font-black text-primary uppercase">Espace Client</p>
+                                <p className="text-[10px] uppercase tracking-widest opacity-40 mb-1">
+                                    {user ? `Connecté en tant que` : `Bienvenue chez UAC`}
+                                </p>
+                                <p className="text-sm font-black text-primary uppercase line-clamp-1">
+                                    {user ? user.fullName : `Espace Client`}
+                                </p>
                             </div>
-                            <li><Link href="/account/profile" className="py-2 hover:text-primary">Profil & Paramètres</Link></li>
-                            <li><Link href="/account/orders" className="py-2 hover:text-primary">Mes Commandes</Link></li>
-                            <li><Link href="/account/wishlist" className="py-2 hover:text-primary">Liste de Souhaits</Link></li>
-                            <div className="divider my-0 opacity-5"></div>
-                            <li><Link href="/account/logout" className="py-2 text-error hover:bg-error/5">Déconnexion</Link></li>
+
+                            {user ? (
+                                <>
+                                    <li><Link href="/account/profile" className="py-2 hover:text-primary">Profil & Paramètres</Link></li>
+                                    <li><Link href="/account/orders" className="py-2 hover:text-primary">Mes Commandes</Link></li>
+                                    <li><Link href="/account/wishlist" className="py-2 hover:text-primary">Liste de Souhaits</Link></li>
+                                    <div className="divider my-0 opacity-5"></div>
+                                    <li><button onClick={handleLogout} className="py-2 text-error hover:bg-error/5 w-full text-left">Déconnexion</button></li>
+                                </>
+                            ) : (
+                                <>
+                                    <li><Link href="/auth/login" className="py-2 text-primary">Se Connecter</Link></li>
+                                    <li><Link href="/auth/register" className="py-2 hover:text-primary">Créer un Compte</Link></li>
+                                </>
+                            )}
                         </ul>
                     </div>
                 </div>
