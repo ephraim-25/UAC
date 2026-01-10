@@ -1,13 +1,18 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import ProductCard from '@/components/catalog/ProductCard';
 import { getProducts, getCategories, Product, Category } from '@/lib/api';
 import { Filter, SlidersHorizontal, ChevronRight, LayoutGrid, List } from 'lucide-react';
+import Link from 'next/link';
 
-export default function CatalogPage() {
+/**
+ * CatalogContent - Composant interne qui utilise useSearchParams()
+ * Wrappé dans Suspense pour respecter les exigences Next.js 15 SSR
+ */
+function CatalogContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
@@ -223,5 +228,30 @@ export default function CatalogPage() {
     );
 }
 
-// Separate component for Link to fix local scope issue if it happens
-import Link from 'next/link';
+/**
+ * CatalogPage - Page principale avec Suspense Boundary
+ * Next.js 15 requiert que useSearchParams() soit dans un Suspense pour le SSR
+ */
+export default function CatalogPage() {
+    return (
+        <Suspense fallback={
+            <main className="bg-white min-h-screen">
+                <Navbar />
+                <div className="pt-24 pb-12 container mx-auto px-4 md:px-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+                        {[1, 2, 3, 4, 5, 6].map(i => (
+                            <div key={i} className="flex flex-col gap-4 animate-pulse">
+                                <div className="bg-neutral/5 aspect-square rounded-[2rem]" />
+                                <div className="h-4 bg-neutral/5 rounded w-1/3" />
+                                <div className="h-6 bg-neutral/5 rounded w-3/4" />
+                                <div className="h-10 bg-neutral/5 rounded w-full mt-4" />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </main>
+        }>
+            <CatalogContent />
+        </Suspense>
+    );
+}
